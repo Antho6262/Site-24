@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1481751589411881060/I4AIls00wrbZkT32jXq3_9dzIGs9yIb3ux7ikt4uCKdBcFNRKxttyI4Z40QDCByNy2K7";
 
-app.use(cors());
+app.use(cors({ origin: '*', methods: ['GET','POST','OPTIONS'], allowedHeaders: ['Content-Type','Accept'] }));
+app.options('*', cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -15,6 +16,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/candidature', async (req, res) => {
+  console.log('📋 Candidature reçue:', req.body);
   const { pseudo, discord, age, disponibilite, experience, parrain, motivation } = req.body;
 
   if (!pseudo || !discord || !motivation) {
@@ -27,13 +29,13 @@ app.post('/candidature', async (req, res) => {
       title: "📋 NOUVELLE CANDIDATURE",
       color: 12517441,
       fields: [
-        { name: "👤 Pseudo RP",        value: pseudo || "—",        inline: true },
-        { name: "🎮 Discord",          value: discord || "—",       inline: true },
-        { name: "🎂 Âge",              value: (age || "—") + " ans", inline: true },
-        { name: "⏰ Disponibilité",    value: disponibilite || "—", inline: true },
-        { name: "🎯 Expérience RP",    value: experience || "—",    inline: true },
-        { name: "🤝 Parrainé par",     value: parrain || "Aucun",   inline: true },
-        { name: "💬 Motivation",       value: motivation || "—",    inline: false }
+        { name: "👤 Pseudo RP",     value: pseudo || "—",         inline: true },
+        { name: "🎮 Discord",       value: discord || "—",        inline: true },
+        { name: "🎂 Âge",           value: (age || "—") + " ans", inline: true },
+        { name: "⏰ Disponibilité", value: disponibilite || "—",  inline: true },
+        { name: "🎯 Expérience RP", value: experience || "—",     inline: true },
+        { name: "🤝 Parrainé par",  value: parrain || "Aucun",    inline: true },
+        { name: "💬 Motivation",    value: motivation || "—",     inline: false }
       ],
       footer: { text: "Némézis FA — Candidature reçue via le site de recrutement" },
       timestamp: new Date().toISOString()
@@ -46,17 +48,18 @@ app.post('/candidature', async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
+    console.log('Discord status:', response.status);
     if (response.ok || response.status === 204) {
       res.json({ success: true });
     } else {
+      const text = await response.text();
+      console.error('Discord error:', text);
       res.status(500).json({ error: 'Erreur Discord' });
     }
   } catch (err) {
+    console.error('Erreur:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Serveur Némézis FA lancé sur le port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Serveur Némézis FA lancé sur le port ${PORT}`));
