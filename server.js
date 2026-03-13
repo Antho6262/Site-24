@@ -1,28 +1,28 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
-
+ 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1481751589411881060/I4AIls00wrbZkT32jXq3_9dzIGs9yIb3ux7ikt4uCKdBcFNRKxttyI4Z40QDCByNy2K7";
-
+ 
+const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1481765935928053801/BoFnlZHpgTfJqGXKtxjFS-hcN40tYHFmB8JRituBgdVBWp0fEpp7rRqOS_FZFBZVxIWz";
+ 
 app.use(cors({ origin: '*', methods: ['GET','POST','OPTIONS'], allowedHeaders: ['Content-Type','Accept'] }));
 app.options('*', cors());
 app.use(express.json());
-
+ 
 app.get('/', (req, res) => {
   res.json({ status: 'Némézis FA API — En ligne ✅' });
 });
-
+ 
 app.post('/candidature', async (req, res) => {
   console.log('📋 Candidature reçue:', req.body);
   const { pseudo, discord, age, disponibilite, experience, parrain, motivation } = req.body;
-
+ 
   if (!pseudo || !discord || !motivation) {
     return res.status(400).json({ error: 'Champs obligatoires manquants' });
   }
-
+ 
   const payload = {
     username: "⚔ Némézis FA — Recrutement",
     embeds: [{
@@ -41,7 +41,7 @@ app.post('/candidature', async (req, res) => {
       timestamp: new Date().toISOString()
     }]
   };
-
+ 
   try {
     const response = await fetch(DISCORD_WEBHOOK, {
       method: 'POST',
@@ -61,5 +61,5 @@ app.post('/candidature', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+ 
 app.listen(PORT, () => console.log(`✅ Serveur Némézis FA lancé sur le port ${PORT}`));
