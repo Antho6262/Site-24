@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Némézis FA — Recrutement</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rouge: #C0392B;
+    --rouge-fonce: #7B241C;
+    --rouge-vif: #E74C3C;
+    --or: #C9A84C;
+    --or-vif: #F0D080;
+    --noir: #080808;
+    --noir-moyen: #0d0d0d;
+    --noir-clair: #1a1a1a;
+    --blanc: #FFFFFF;
+    --gris: #888;
+    --gris-fonce: #333;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CURSEUR ── */
+  .cursor {
+    position: fixed; width: 8px; height: 8px;
+    background: var(--rouge); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s;
+  }
+  .cursor-ring {
+    position: fixed; width: 32px; height: 32px;
+    border: 1px solid rgba(192,57,43,0.4); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: all 0.15s ease;
+  }
+
+  /* ── GRAIN ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* ── SCANLINES ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  #hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(192,57,43,0.08) 0%, transparent 70%);
+  }
+
+  .hero-lines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(192,57,43,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192,57,43,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+
+  @keyframes gridMove {
+    from { transform: translateY(0); }
+    to   { transform: translateY(60px); }
+  }
+
+  .hero-corner {
+    position: absolute;
+    width: 80px; height: 80px;
+    border-color: rgba(192,57,43,0.3);
+    border-style: solid;
+  }
+  .hero-corner.tl { top: 40px; left: 40px; border-width: 1px 0 0 1px; }
+  .hero-corner.tr { top: 40px; right: 40px; border-width: 1px 1px 0 0; }
+  .hero-corner.bl { bottom: 40px; left: 40px; border-width: 0 0 1px 1px; }
+  .hero-corner.br { bottom: 40px; right: 40px; border-width: 0 1px 1px 0; }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    text-align: center;
+    animation: heroIn 1.2s ease forwards;
+  }
+
+  @keyframes heroIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; letter-spacing: 6px;
+    color: var(--rouge); margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .hero-tag::before, .hero-tag::after {
+    content: ''; width: 40px; height: 1px; background: var(--rouge); opacity: 0.5;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 12vw, 160px);
+    letter-spacing: 8px;
+    color: var(--blanc);
+    line-height: 0.9;
+    text-shadow: 0 0 60px rgba(192,57,43,0.3);
+  }
+
+  .hero-title .accent { color: var(--rouge); }
+
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-style: italic;
+    color: var(--gris); letter-spacing: 4px;
+    margin-top: 16px;
+  }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 32px;
+    padding: 10px 24px;
+    border: 1px solid rgba(192,57,43,0.4);
+    background: rgba(192,57,43,0.06);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--rouge-vif);
+  }
+  .status-badge::before {
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--rouge-vif);
+    box-shadow: 0 0 8px var(--rouge-vif);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  .scroll-hint {
+    position: absolute; bottom: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 3px; color: var(--gris-fonce);
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(6px); }
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 100px 40px;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 5px;
+    color: var(--rouge); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(192,57,43,0.2); }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 4px; color: var(--blanc);
+    margin-bottom: 40px;
+    line-height: 1;
+  }
+
+  /* ── PRÉSENTATION ── */
+  .presentation-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  }
+
+  .pres-card {
+    background: var(--noir-moyen);
+    border: 1px solid var(--gris-fonce);
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .pres-card:hover { border-color: rgba(192,57,43,0.4); }
+  .pres-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--rouge), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .pres-card:hover::before { opacity: 1; }
+
+  .pres-icon {
+    font-size: 32px; margin-bottom: 16px;
+  }
+  .pres-card h3 {
+    font-family: 'Cinzel', serif; font-size: 16px;
+    letter-spacing: 2px; color: var(--blanc);
+    margin-bottom: 12px;
+  }
+  .pres-card p {
+    font-size: 15px; line-height: 1.8;
+    color: var(--gris); font-style: italic;
+  }
+
+  /* ── GRADES ── */
+  .grades-list {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .grade-row {
+    display: flex; align-items: center; gap: 24px;
+    padding: 20px 28px;
+    background: var(--noir-moyen);
+    border: 1px solid var(--gris-fonce);
+    border-left: 3px solid transparent;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .grade-row:hover {
+    border-left-color: var(--rouge);
+    background: rgba(192,57,43,0.04);
+    transform: translateX(4px);
+  }
+
+  .grade-emoji { font-size: 24px; flex-shrink: 0; }
+  .grade-name {
+    font-family: 'Cinzel', serif; font-size: 18px;
+    font-weight: 700; color: var(--blanc); flex: 1;
+  }
+  .grade-desc {
+    font-size: 13px; font-style: italic; color: var(--gris);
+  }
+  .grade-rank {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--rouge); flex-shrink: 0;
+  }
+
+  /* ── CRITÈRES ── */
+  .criteres-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  }
+
+  .critere-card {
+    background: var(--noir-moyen);
+    border: 1px solid var(--gris-fonce);
+    padding: 28px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .critere-card:hover {
+    border-color: rgba(192,57,43,0.4);
+    transform: translateY(-4px);
+  }
+
+  .critere-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; color: rgba(192,57,43,0.15);
+    line-height: 1; margin-bottom: 8px;
+  }
+  .critere-card h3 {
+    font-family: 'Cinzel', serif; font-size: 13px;
+    letter-spacing: 2px; color: var(--blanc);
+    margin-bottom: 10px;
+  }
+  .critere-card p {
+    font-size: 13px; line-height: 1.7;
+    color: var(--gris); font-style: italic;
+  }
+
+  /* ── RÈGLES ── */
+  .regles-list {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .regle-item {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 20px 24px;
+    background: var(--noir-moyen);
+    border: 1px solid var(--gris-fonce);
+    transition: border-color 0.3s;
+  }
+  .regle-item:hover { border-color: rgba(192,57,43,0.3); }
+
+  .regle-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; color: var(--rouge);
+    flex-shrink: 0; line-height: 1; min-width: 32px;
+  }
+  .regle-content h4 {
+    font-family: 'Cinzel', serif; font-size: 14px;
+    letter-spacing: 1px; color: var(--blanc);
+    margin-bottom: 6px;
+  }
+  .regle-content p {
+    font-size: 13px; line-height: 1.7;
+    color: var(--gris); font-style: italic;
+  }
+
+  /* ── FORMULAIRE ── */
+  #candidature {
+    background: var(--noir-moyen);
+    border: 1px solid var(--gris-fonce);
+    border-top: 2px solid var(--rouge);
+    padding: 60px;
+    position: relative;
+  }
+
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-group label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 3px;
+    color: var(--rouge); text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: var(--noir-clair);
+    border: 1px solid var(--gris-fonce);
+    border-bottom: 1px solid rgba(192,57,43,0.3);
+    color: var(--blanc);
+    padding: 14px 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: rgba(192,57,43,0.6);
+    background: rgba(192,57,43,0.04);
+  }
+  .form-group select option { background: var(--noir-clair); }
+  .form-group textarea { resize: vertical; min-height: 120px; }
+
+  .form-submit {
+    width: 100%; padding: 18px;
+    background: transparent;
+    border: 1px solid var(--rouge);
+    color: var(--blanc);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; letter-spacing: 6px;
+    cursor: none;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+    margin-top: 8px;
+  }
+  .form-submit::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--rouge);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+  .form-submit:hover::before { transform: translateX(0); }
+  .form-submit:hover { letter-spacing: 8px; }
+
+  .form-note {
+    font-size: 12px; font-style: italic;
+    color: var(--gris-fonce); text-align: center;
+    margin-top: 16px; letter-spacing: 1px;
+  }
+
+  #form-success {
+    display: none;
+    text-align: center; padding: 40px;
+  }
+  #form-success .success-icon { font-size: 48px; margin-bottom: 16px; }
+  #form-success h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 4px;
+    color: var(--blanc); margin-bottom: 8px;
+  }
+  #form-success p { color: var(--gris); font-style: italic; font-size: 15px; }
+
+  /* ── CONTACT ── */
+  .contact-bloc {
+    text-align: center; padding: 80px 40px;
+    border-top: 1px solid var(--gris-fonce);
+    position: relative; z-index: 1;
+  }
+
+  .discord-btn {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 18px 48px;
+    background: transparent;
+    border: 1px solid var(--rouge);
+    color: var(--blanc);
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 6px;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+    margin-top: 32px;
+  }
+  .discord-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--rouge);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+  .discord-btn:hover::before { transform: translateX(0); }
+  .discord-btn:hover { letter-spacing: 8px; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--gris-fonce);
+    padding: 24px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1;
+  }
+
+  footer .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; letter-spacing: 6px; color: var(--rouge);
+  }
+  footer .copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 2px; color: var(--gris-fonce);
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rouge), transparent);
+    opacity: 0.3; margin: 0;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.2; }
+  }
+
+  .fade-in {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .presentation-grid, .criteres-grid, .form-grid { grid-template-columns: 1fr; }
+    section { padding: 60px 24px; }
+    #candidature { padding: 32px 24px; }
+    .hero-title { font-size: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ══ HERO ══ -->
+<div id="hero">
+  <div id="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div>
+  <div class="hero-corner br"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">GTA V ROLEPLAY — ORGANISATION CRIMINELLE</div>
+    <div class="hero-title">NÉMÉ<span class="accent">ZIS</span><br>FA</div>
+    <div class="hero-sub">L'ombre qui gouverne la rue</div>
+    <div class="status-badge">RECRUTEMENT — SUR INVITATION UNIQUEMENT</div>
+  </div>
+
+  <div class="scroll-hint">▼ DÉCOUVRIR</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ PRÉSENTATION ══ -->
+<section class="fade-in">
+  <div class="section-label">01 — QUI SOMMES-NOUS</div>
+  <div class="section-title">PRÉSENTATION</div>
+  <div class="presentation-grid">
+    <div class="pres-card">
+      <div class="pres-icon">⚔</div>
+      <h3>NOTRE IDENTITÉ</h3>
+      <p>Némézis FA est une organisation criminelle d'élite sur GTA V Roleplay. Nous opérons dans l'ombre, avec discipline et loyauté. Chaque membre est choisi pour ses compétences et sa détermination.</p>
+    </div>
+    <div class="pres-card">
+      <div class="pres-icon">🎯</div>
+      <h3>NOTRE MISSION</h3>
+      <p>Dominer le marché criminel avec méthode et stratégie. Nos opérations couvrent le trafic, le blanchiment et les missions à haute valeur. La réussite collective prime sur tout.</p>
+    </div>
+    <div class="pres-card">
+      <div class="pres-icon">🛡</div>
+      <h3>NOS VALEURS</h3>
+      <p>Loyauté, discrétion, efficacité. Chez Némézis FA, la parole donnée est sacrée. On ne trahit pas les siens, on ne laisse personne derrière.</p>
+    </div>
+    <div class="pres-card">
+      <div class="pres-icon">👥</div>
+      <h3>NOTRE ÉQUIPE</h3>
+      <p>Une cellule restreinte de membres triés sur le volet. Pas de quantité, de la qualité. Chaque recrue est formée et accompagnée jusqu'à sa montée en grade.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ GRADES ══ -->
+<section class="fade-in">
+  <div class="section-label">02 — HIÉRARCHIE</div>
+  <div class="section-title">LES GRADES</div>
+  <div class="grades-list">
+    <div class="grade-row">
+      <div class="grade-emoji">🟣</div>
+      <div class="grade-name">Aspirant</div>
+      <div class="grade-desc">Premier contact avec l'organisation — période d'observation</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">🟡</div>
+      <div class="grade-name">Initié</div>
+      <div class="grade-desc">Membre intégré ayant prouvé sa valeur sur le terrain</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">🔴</div>
+      <div class="grade-name">Co-Lead</div>
+      <div class="grade-desc">Membre de confiance impliqué dans les décisions du groupe</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">🟠</div>
+      <div class="grade-name">Vétéran</div>
+      <div class="grade-desc">Ancien du groupe, pilier de l'organisation</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">🔵</div>
+      <div class="grade-name">Lead</div>
+      <div class="grade-desc">Responsable opérationnel — gère les missions et l'équipe</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">⚪</div>
+      <div class="grade-name">Bras Gauche</div>
+      <div class="grade-desc">Bras droit du dirigeant — autorité absolue sur le terrain</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-emoji">🟢</div>
+      <div class="grade-name">Bras Droit</div>
+      <div class="grade-desc">Second du chef — stratège et commandant suprême</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ CRITÈRES ══ -->
+<section class="fade-in">
+  <div class="section-label">03 — PRÉREQUIS</div>
+  <div class="section-title">CRITÈRES DE RECRUTEMENT</div>
+  <div class="criteres-grid">
+    <div class="critere-card">
+      <div class="critere-num">01</div>
+      <h3>EXPÉRIENCE RP</h3>
+      <p>Minimum 1 mois d'expérience sur le serveur. Maîtrise des règles RP et du lore criminel.</p>
+    </div>
+    <div class="critere-card">
+      <div class="critere-num">02</div>
+      <h3>DISPONIBILITÉ</h3>
+      <p>Être actif régulièrement. Participer aux missions hebdomadaires et aux réunions du groupe.</p>
+    </div>
+    <div class="critere-card">
+      <div class="critere-num">03</div>
+      <h3>CASIER PROPRE</h3>
+      <p>Aucune sanction récente pour non-respect du RP. Comportement exemplaire en jeu.</p>
+    </div>
+    <div class="critere-card">
+      <div class="critere-num">04</div>
+      <h3>Discord OBLIGATOIRE</h3>
+      <p>Présence sur notre serveur Discord. Micro requis pour les opérations coordonnées.</p>
+    </div>
+    <div class="critere-card">
+      <div class="critere-num">05</div>
+      <h3>LOYAUTÉ</h3>
+      <p>Appartenir exclusivement à Némézis FA. Aucune double appartenance tolérée.</p>
+    </div>
+    <div class="critere-card">
+      <div class="critere-num">06</div>
+      <h3>SUR INVITATION</h3>
+      <p>Le recrutement se fait uniquement par cooptation d'un membre actif ou via candidature exceptionnelle.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ RÈGLES ══ -->
+<section class="fade-in">
+  <div class="section-label">04 — CODE DE CONDUITE</div>
+  <div class="section-title">RÈGLES DU GROUPE</div>
+  <div class="regles-list">
+    <div class="regle-item">
+      <div class="regle-num">I</div>
+      <div class="regle-content">
+        <h4>LOYAUTÉ ABSOLUE</h4>
+        <p>La trahison envers le groupe est sanctionnée immédiatement et définitivement. Un membre de Némézis FA ne collabore jamais contre les siens.</p>
+      </div>
+    </div>
+    <div class="regle-item">
+      <div class="regle-num">II</div>
+      <div class="regle-content">
+        <h4>DISCRÉTION TOTALE</h4>
+        <p>Les opérations du groupe restent internes. Aucune information sensible ne doit fuiter hors du Discord officiel.</p>
+      </div>
+    </div>
+    <div class="regle-item">
+      <div class="regle-num">III</div>
+      <div class="regle-content">
+        <h4>RESPECT DE LA HIÉRARCHIE</h4>
+        <p>Les ordres viennent du haut. Toute décision stratégique est validée par le Lead ou le Bras Droit. On ne passe pas en force.</p>
+      </div>
+    </div>
+    <div class="regle-item">
+      <div class="regle-num">IV</div>
+      <div class="regle-content">
+        <h4>PARTICIPATION ACTIVE</h4>
+        <p>Une inactivité de plus de 7 jours sans justification entraîne une rétrogradation. Le groupe avance ensemble ou pas du tout.</p>
+      </div>
+    </div>
+    <div class="regle-item">
+      <div class="regle-num">V</div>
+      <div class="regle-content">
+        <h4>FAIR-PLAY EN JEU</h4>
+        <p>Le respect des règles du serveur est non négociable. Aucun comportement toxique ou anti-RP ne sera toléré au nom de Némézis FA.</p>
+      </div>
+    </div>
+    <div class="regle-item">
+      <div class="regle-num">VI</div>
+      <div class="regle-content">
+        <h4>PARTAGE DES GAINS</h4>
+        <p>Les missions collectives génèrent des revenus partagés selon les règles établies. La cupidité individuelle nuit au groupe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ FORMULAIRE ══ -->
+<section class="fade-in">
+  <div class="section-label">05 — NOUS REJOINDRE</div>
+  <div class="section-title">CANDIDATURE</div>
+  <div id="candidature">
+    <div class="corner-tl" style="position:absolute;top:16px;left:16px;width:24px;height:24px;border-top:1px solid rgba(192,57,43,0.4);border-left:1px solid rgba(192,57,43,0.4);"></div>
+    <div class="corner-br" style="position:absolute;bottom:16px;right:16px;width:24px;height:24px;border-bottom:1px solid rgba(192,57,43,0.4);border-right:1px solid rgba(192,57,43,0.4);"></div>
+
+    <form id="form-candidature">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pseudo en jeu</label>
+          <input type="text" placeholder="Prénom Nom RP" required>
+        </div>
+        <div class="form-group">
+          <label>Tag Discord</label>
+          <input type="text" placeholder="pseudo#0000" required>
+        </div>
+        <div class="form-group">
+          <label>Âge réel</label>
+          <input type="number" placeholder="18" min="16" required>
+        </div>
+        <div class="form-group">
+          <label>Disponibilité hebdo</label>
+          <select required>
+            <option value="" disabled selected>Choisir...</option>
+            <option>Moins de 5h/semaine</option>
+            <option>5h à 10h/semaine</option>
+            <option>10h à 20h/semaine</option>
+            <option>Plus de 20h/semaine</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Expérience RP</label>
+          <select required>
+            <option value="" disabled selected>Choisir...</option>
+            <option>Moins d'1 mois</option>
+            <option>1 à 3 mois</option>
+            <option>3 à 6 mois</option>
+            <option>Plus de 6 mois</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Parrainé par</label>
+          <input type="text" placeholder="Pseudo du membre (si invitation)">
+        </div>
+        <div class="form-group full">
+          <label>Pourquoi rejoindre Némézis FA ?</label>
+          <textarea placeholder="Explique ta motivation, ton background RP, ce que tu peux apporter au groupe..." required></textarea>
+        </div>
+      </div>
+      <button type="submit" class="form-submit">ENVOYER MA CANDIDATURE</button>
+      <p class="form-note">Les candidatures sont examinées sous 48h — Un membre vous contactera sur Discord</p>
+    </form>
+
+    <div id="form-success">
+      <div class="success-icon">⚔</div>
+      <h3>CANDIDATURE REÇUE</h3>
+      <p>Nous avons bien reçu ta candidature.<br>Un membre de Némézis FA te contactera sur Discord sous 48h.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ CONTACT ══ -->
+<div class="contact-bloc fade-in">
+  <div class="section-label" style="justify-content:center;max-width:400px;margin:0 auto 16px;">06 — NOUS TROUVER</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,56px);letter-spacing:4px;color:var(--blanc);">REJOINS LE DISCORD</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--gris);margin-top:12px;">L'entrée dans l'organisation commence ici</div>
+  <a href="https://discord.gg/kB84krSW" target="_blank" class="discord-btn">
+    <span>🎮</span> REJOINDRE LE SERVEUR
+  </a>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="brand">⚔ NÉMÉZIS FA</div>
+  <div class="copy">GTA V ROLEPLAY — ORGANISATION CRIMINELLE — RECRUTEMENT SUR INVITATION</div>
+</footer>
+
+<script>
+  // Curseur
+  var cursor = document.getElementById('cursor');
+  var ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', function(e) {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(function() {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 80);
+  });
+
+  // Fade in au scroll
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
+
+  // Formulaire → Formspree
+  document.getElementById('form-candidature').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var form = e.target;
+    var inputs = form.querySelectorAll('input');
+    var selects = form.querySelectorAll('select');
+    var formData = {
+      pseudo: inputs[0].value,
+      discord: inputs[1].value,
+      age: inputs[2].value,
+      disponibilite: selects[0].value,
+      experience: selects[1].value,
+      parrain: inputs[3].value || 'Aucun',
+      motivation: form.querySelector('textarea').value
+    };
+    fetch('https://nemezis-api.onrender.com/candidature', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(formData)
+    }).then(function(r) {
+      if (r.ok) {
+        document.getElementById('form-candidature').style.display = 'none';
+        document.getElementById('form-success').style.display = 'block';
+      } else {
+        alert('Erreur lors de l envoi. Rejoins directement le Discord !');
+      }
+    }).catch(function() {
+      alert('Erreur lors de l envoi. Rejoins directement le Discord !');
+    });
+  });
+</script>
+</body>
+</html>
